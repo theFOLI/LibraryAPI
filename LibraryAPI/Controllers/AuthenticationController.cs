@@ -47,6 +47,9 @@ public class AuthenticationController : ControllerBase
                 try
                 {
 
+                    var existingSession = dbConnection.QueryFirstOrDefault<int>("SELECT COUNT(*) FROM user_sessions WHERE UserId = @UserId",
+                new { UserId = user.UserId });
+
                     var userSession = new UserSession
                     {
                         UserId = user.UserId,
@@ -54,9 +57,16 @@ public class AuthenticationController : ControllerBase
                         ExpirationTime = DateTime.Now.AddDays(1)
                     };
 
-                    string insertQuery = @"
-                INSERT INTO user_sessions (UserId, AuthToken, ExpirationTime)
-                VALUES (@UserId, @AuthToken, @ExpirationTime)";
+                    string insertQuery = @"INSERT INTO user_sessions (UserId, AuthToken, ExpirationTime)
+                                             VALUES (@UserId, @AuthToken, @ExpirationTime)";
+
+                    if (existingSession > 0)
+                    {
+                       insertQuery = @"UPDATE user_sessions
+                                        SET AuthToken = @AuthToken, 
+                                                ExpirationTime = @ExpirationTime
+                                                     WHERE UserId = @UserID;";
+                    }
 
                     int sessionId = dbConnection.Execute(insertQuery, userSession);
                 }

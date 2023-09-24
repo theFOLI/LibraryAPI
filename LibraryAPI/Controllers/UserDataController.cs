@@ -18,7 +18,7 @@ public class UserDataController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpGet]
+    [HttpGet("m")]
     [Authorize] // This attribute requires authentication for this endpoint
     public IActionResult GetUserData([FromQuery(Name = "auth_token")] string authToken)
     {
