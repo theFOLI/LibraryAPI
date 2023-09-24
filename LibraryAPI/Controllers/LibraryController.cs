@@ -2,7 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using Newtonsoft.Json;
+using System.IO;
+using System.Net.Sockets;
 using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -141,18 +144,34 @@ namespace LibraryAPI
         {
         }
 
-        /*[HttpGet]
+        [HttpGet("cover/{cover}")]
         public async Task<IActionResult> GetCover(string cover)
         {
-            string path = @"\BookCovers\file.txt";
+            string path = @"C:\BookCovers\";
 
-            if (System.IO.File.Exists(path + cover))
+            if (System.IO.File.Exists(path + cover + ".jpg"))
             {
-                return File(System.IO.File.OpenRead(path), "application/octet-stream", Path.GetFileName(path + cover));
-            }
-            return NotFound();
-        }*/
+                try
+                {
+                    var stream = new FileStream(path + cover + ".jpg", FileMode.Open, FileAccess.Read);
+                    var fileStreamResult = new FileStreamResult(stream, "application/octet-stream")
+                    {
+                        FileDownloadName = cover + ".jpg",
+                    };
 
+                    return fileStreamResult;
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"An error occurred: {ex.Message}");
+                }
+            }
+            else
+            {
+                return NotFound("The file does not exist.");
+            }
+           
+        }
 
     }
 }
