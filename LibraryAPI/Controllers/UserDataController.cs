@@ -19,13 +19,14 @@ public class UserDataController : ControllerBase
     }
 
     [HttpGet("m")]
-    [Authorize] // This attribute requires authentication for this endpoint
-    public IActionResult GetUserData([FromQuery(Name = "auth_token")] string authToken)
+    public async Task<IActionResult> GetUserData([FromQuery(Name = "auth_token")] string authToken)
     {
         try
         {
             // Retrieve the authenticated user's ID from the token (you should have this logic in place)
-            var userId = GetUserFromToken(authToken); // Pass the auth_token as a parameter
+            var userId = GetUserIdFromToken(authToken); // Pass the auth_token as a parameter
+
+            if (userId == -1) return NotFound("UserId not found.");
 
             using MySqlConnection dbConnection = new MySqlConnection("Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504");
             dbConnection.Open();
@@ -36,8 +37,10 @@ public class UserDataController : ControllerBase
 
             if (userData == null)
             {
-                return NotFound("User data not found.");
+                return NotFound($"User data for id {userId} not found.");
             }
+
+            userData.UserId = userId;
 
             return Ok(userData);
         }
@@ -47,18 +50,50 @@ public class UserDataController : ControllerBase
         }
     }
 
-    // Implement a method to extract the user ID from the authentication token
-    private int GetUserFromToken(string authToken)
+    [HttpGet("profilepic/{profilePic}")]
+    public async Task<IActionResult> GetCover(string profilepic)
     {
-        // Replace with your actual logic to extract user ID from the token
-        // For simplicity, I'm assuming the token contains the user ID as an integer
-        if (int.TryParse(authToken, out int userId))
+        string path = @"C:\ProfilePics\";
+
+        if (System.IO.File.Exists(path + profilepic + ".jpg"))
         {
-            return userId;
+            try
+            {
+                var stream = new FileStream(path + profilepic + ".jpg", FileMode.Open, FileAccess.Read);
+                var fileStreamResult = new FileStreamResult(stream, "application/octet-stream")
+                {
+                    FileDownloadName = profilepic + ".jpg",
+                };
+
+                return fileStreamResult;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An error occurred: {ex.Message}");
+            }
         }
         else
         {
-            throw new ArgumentException("Invalid auth_token format");
+            return NotFound("The file does not exist.");
+        }
+
+    }
+
+    // Implement a method to extract the user ID from the authentication token
+    private int GetUserIdFromToken(string authToken)
+    {
+        try
+        {
+            using MySqlConnection dbConnection = new MySqlConnection("Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504");
+            dbConnection.Open();
+
+            int userId = dbConnection.QuerySingleOrDefault<int>("SELECT UserId FROM user_sessions WHERE AuthToken = @AuthToken",
+                new { AuthToken = authToken });
+            return userId;
+        }
+        catch (Exception ex)
+        {
+            return -1;
         }
     }
 }

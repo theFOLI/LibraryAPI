@@ -31,7 +31,7 @@ namespace LibraryAPI
         public string Get()
         {
             //string json = "{\r\n  \"books\": [\r\n    {\r\n      \"title\": \"Universidade Marketing Digital\",\r\n      \"author\": \"Alessandro Gerardi\",\r\n      \"coverImagePath\": \"market.jpg\"\r\n    },\r\n    {\r\n      \"title\": \"Espada de vidro\",\r\n      \"author\": \"Victoria Aveyard\",\r\n      \"coverImagePath\": \"espad.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"O Alquimista\",\r\n      \"author\": \"Paulo Coelho\",\r\n      \"coverImagePath\": \"alquimia.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"Gatos Guerreiros\",\r\n      \"author\": \"Erin Hunter\",\r\n      \"coverImagePath\": \"gato.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"Ventos de Mudança\",\r\n      \"author\": \"Beverly Jenkins\",\r\n      \"coverImagePath\": \"vento.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"Claudinei Prieto\",\r\n      \"author\": \"O novo tarô de Marselha\",\r\n      \"coverImagePath\": \"marsela.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"As Cronicas de Narnia\",\r\n      \"author\": \"C.S Lewis\",\r\n      \"coverImagePath\": \"narnia.jpg\"\r\n    },\r\n\t{\r\n      \"title\": \"favoRITA\",\r\n      \"author\": \"unknown\",\r\n      \"coverImagePath\": \"rita.jpg\"\r\n    }\r\n  ]\r\n}";
-
+            Response.Headers.Add("Connection", "close");
             string connectionString = "Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504"; // Replace with your MySQL connection string
 
             List<Book> books = new List<Book>();

@@ -23,6 +23,8 @@ public class AuthenticationController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginDTO loginDTO)
     {
+        Response.Headers.Add("Connection", "close");
+
         try
         {
             using MySqlConnection dbConnection = new MySqlConnection("Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504");
@@ -85,6 +87,29 @@ public class AuthenticationController : ControllerBase
             {
                 return Unauthorized(); // Passwords don't match
             }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout(string authToken)
+    {
+        Response.Headers.Add("Connection", "close");
+
+        try
+        {
+            using MySqlConnection dbConnection = new MySqlConnection("Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504");
+            dbConnection.Open();
+
+            // Check if the provided username exists in the user_login table.
+            dbConnection.Execute("DELETE FROM user_sessions WHERE AuthToken = @AuthToken",
+            new { AuthToken = authToken });
+
+            return Ok("{}");
+            
         }
         catch (Exception ex)
         {

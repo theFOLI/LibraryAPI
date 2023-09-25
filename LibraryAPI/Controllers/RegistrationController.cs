@@ -48,7 +48,7 @@ public class RegistrationController : ControllerBase
             var userId = dbConnection.QuerySingle<int>("SELECT LAST_INSERT_ID()");
 
             // Insert user_data for the registered user
-            dbConnection.Execute(@"INSERT INTO user_data (user_id, name, login, birth_date, sex, email, phone_number, cpf, profile_pic_filename)
+            dbConnection.Execute(@"INSERT INTO user_data (user_id, name, login, birthDate, sex, email, phoneNumber, cpf, profilePicFilename)
                                    VALUES (@UserId, @Name, @Login, @BirthDate, @Sex, @Email, @PhoneNumber, @CPF, @ProfilePicFilename)",
                 new
                 {
