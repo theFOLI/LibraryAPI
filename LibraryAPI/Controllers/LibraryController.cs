@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dapper;
+using LibraryAPI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using Newtonsoft.Json;
@@ -173,5 +175,33 @@ namespace LibraryAPI
            
         }
 
+
+        [HttpGet("bookData")]
+        public async Task<IActionResult> GetBookData([FromQuery(Name = "bookId")] string bookId)
+        {
+            try
+            {
+                using MySqlConnection dbConnection = new MySqlConnection("Server=localhost;Database=library;Uid=root;Pwd=jujuamapi0504");
+                dbConnection.Open();
+
+                // Note: You should use parameterized queries to prevent SQL injection
+                var bookData = dbConnection.QuerySingleOrDefault<SimpleBookData>("SELECT * FROM books WHERE id = @BookId",
+                    new { BookId = bookId });
+
+                if (bookData == null)
+                {
+                    return NotFound($"Book data for id {bookId} not found.");
+                }
+
+                return Ok(bookData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
+
+    
 }
